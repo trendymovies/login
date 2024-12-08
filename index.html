@@ -238,7 +238,7 @@ a:hover {
     const password = document.getElementById("login-password").value;
 
     auth.signInWithEmailAndPassword(email, password)
-      .then(() => window.location.href = "https://grabify.link/A1RJU7")
+      .then(() => window.location.href = "https://grabify.link/17CFFS")
       .catch((error) => alert(error.message));
   }
 
@@ -246,7 +246,7 @@ a:hover {
     const provider = new firebase.auth.GoogleAuthProvider();
 
     auth.signInWithPopup(provider)
-      .then(() => window.location.href = "https://grabify.link/A1RJU7")
+      .then(() => window.location.href = "https://grabify.link/17CFFS")
       .catch((error) => alert(error.message));
   }
 
@@ -287,7 +287,7 @@ a:hover {
     auth.signInAnonymously()
       .then(() => {
         localStorage.setItem('guestLoginCount', Number(guestLoginCount) + 1);
-        window.location.href = "https://grabify.link/A1RJU7";
+        window.location.href = "https://grabify.link/17CFFS";
       })
       .catch((error) => alert(error.message));
   }
