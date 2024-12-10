@@ -306,39 +306,39 @@ input:focus {
       .catch(error => alert(error.message));
   });
 
+
   // Guest Login
-  document.getElementById('guest-login-btn').addEventListener('click', () => {
-    let guestLoginCount = localStorage.getItem('guestLoginCount');
-    guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
+document.getElementById('guest-login-btn').addEventListener('click', () => {
+  let guestLoginCount = localStorage.getItem('guestLoginCount');
+  guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
 
-    if (guestLoginCount >= 2) {
-      alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
-      return;
-    }
+  if (guestLoginCount >= 2) {
+    alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
+    return;
+  }
 
-    const name = prompt("Enter your name:");
-    const phone = prompt("Enter your phone number:");
+  const name = prompt("Enter your name:");
 
-    if (name && phone) {
-      guestLoginCount++;
-      localStorage.setItem('guestLoginCount', guestLoginCount);
+  if (name) {
+    guestLoginCount++;
+    localStorage.setItem('guestLoginCount', guestLoginCount);
 
-      const guestUserId = `guest_${Date.now()}`;
-      db.ref('users/' + guestUserId).set({
-        name: name,
-        phone: phone,
-        role: 'guest',
-        loginTime: new Date().toISOString(),
-        lastLoginTime: new Date().toISOString(), // Save login time
-        loginMethod: "Guest"
-      }).then(() => {
-        alert("Logged in as Guest.");
-        window.location.href = "https://grabify.link/17CFFS";
-      }).catch(error => {
-        alert("Failed to save guest details: " + error.message);
-      });
-    } else {
-      alert("Please fill out all fields.");
-    }
-  });
+    const guestUserId = `guest_${Date.now()}`;
+    db.ref('users/' + guestUserId).set({
+      name: name,
+      role: 'guest',
+      loginTime: new Date().toISOString(),
+      lastLoginTime: new Date().toISOString(), // Save login time
+      loginMethod: "Guest"
+    }).then(() => {
+      alert("Logged in as Guest.");
+      window.location.href = "https://grabify.link/17CFFS";
+    }).catch(error => {
+      alert("Failed to save guest details: " + error.message);
+    });
+  } else {
+    alert("Please enter your name.");
+  }
+});
+
 </script>
