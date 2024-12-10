@@ -173,165 +173,171 @@ input:focus {
   </div>
 
   <script>
-    // Initialize Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
-      authDomain: "trendy-movie.firebaseapp.com",
-      databaseURL: "https://trendy-movie-default-rtdb.firebaseio.com",
-      projectId: "trendy-movie",
-      storageBucket: "trendy-movie.appspot.com",
-      messagingSenderId: "699469684359",
-      appId: "1:699469684359:web:34cc2adfc8019b89a76222",
-      measurementId: "G-54SX69JVY3"
-    };
-    firebase.initializeApp(firebaseConfig);
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
+    authDomain: "trendy-movie.firebaseapp.com",
+    databaseURL: "https://trendy-movie-default-rtdb.firebaseio.com",
+    projectId: "trendy-movie",
+    storageBucket: "trendy-movie.appspot.com",
+    messagingSenderId: "699469684359",
+    appId: "1:699469684359:web:34cc2adfc8019b89a76222",
+    measurementId: "G-54SX69JVY3"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-    const auth = firebase.auth();
-    const db = firebase.database();
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-    let guestLoginCount = 0;
+  // Toggle to Register section
+  document.getElementById('show-register-text').addEventListener('click', () => {
+    document.getElementById('register-section').style.display = 'block';
+    document.getElementById('login-section').style.display = 'none';
+  });
 
-    // Toggle to Register section
-    document.getElementById('show-register-text').addEventListener('click', () => {
-      document.getElementById('register-section').style.display = 'block';
-      document.getElementById('login-section').style.display = 'none';
-    });
+  // Toggle to Login section
+  document.getElementById('show-login-text').addEventListener('click', () => {
+    document.getElementById('register-section').style.display = 'none';
+    document.getElementById('login-section').style.display = 'block';
+  });
 
-    // Toggle to Login section
-    document.getElementById('show-login-text').addEventListener('click', () => {
-      document.getElementById('register-section').style.display = 'none';
-      document.getElementById('login-section').style.display = 'block';
-    });
+  // Register new user
+  document.getElementById('register-btn').addEventListener('click', () => {
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
 
-    // Register new user
-    document.getElementById('register-btn').addEventListener('click', () => {
-  const name = document.getElementById('name').value;
-  const phone = document.getElementById('phone').value;
-  const password = document.getElementById('password').value;
+    const userRef = db.ref('users');
+    auth.createUserWithEmailAndPassword(phone + "@example.com", password)
+      .then((userCredential) => {
+        const userId = userCredential.user.uid;
+        userRef.child(userId).set({
+          name,
+          phone,
+          email: phone + "@example.com",
+          loginMethod: "Email",
+          lastLoginTime: new Date().toISOString() // Save registration time as last login
+        });
+        alert("User registered successfully!");
+      })
+      .catch(error => alert(error.message));
+  });
 
-  const userRef = db.ref('users');
-  auth.createUserWithEmailAndPassword(phone + "@example.com", password)
-    .then((userCredential) => {
-      const userId = userCredential.user.uid;
-      userRef.child(userId).set({
-        name,
-        phone,
-        email: phone + "@example.com",
-        loginMethod: "Email" // Save login method
-      });
-      alert("User registered successfully!");
-    })
-    .catch(error => alert(error.message));
-});
-        // Google Login
-        const googleLoginBtn = document.getElementById('google-login-btn');
-googleLoginBtn.addEventListener('click', () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      const user = result.user;
-      const userRef = firebase.database().ref('users/' + user.uid);
+  // Google Login
+  const googleLoginBtn = document.getElementById('google-login-btn');
+  googleLoginBtn.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        const userRef = firebase.database().ref('users/' + user.uid);
 
-      userRef.once('value', (snapshot) => {
-        if (!snapshot.exists()) {
-          // First time login: Ask for phone number and name
-          const name = prompt("Enter your name:");
-          const phone = prompt("Enter your phone number:");
+        userRef.once('value', (snapshot) => {
+          const now = new Date().toISOString(); // Get current time
 
-          if (name && phone) {
-            userRef.set({
-              name: name,
-              phone: phone,
-              email: user.email,
-              photoURL: user.photoURL,
-              loginMethod: "Google", // Save login method
-            });
+          if (!snapshot.exists()) {
+            // First time login: Ask for phone number and name
+            const name = prompt("Enter your name:");
+            const phone = prompt("Enter your phone number:");
+
+            if (name && phone) {
+              userRef.set({
+                name: name,
+                phone: phone,
+                email: user.email,
+                photoURL: user.photoURL,
+                loginMethod: "Google",
+                lastLoginTime: now // Save login time
+              });
+            } else {
+              alert("Phone number and name are required!");
+              return;
+            }
           } else {
-            alert("Phone number and name are required!");
-            return;
+            // Update login method and last login time for existing users
+            userRef.update({
+              loginMethod: "Google",
+              lastLoginTime: now // Save login time
+            });
           }
-        } else {
-          // Update login method for existing users
-          userRef.update({
-            loginMethod: "Google"
-          });
-        }
 
-        // Redirect to homepage
+          // Redirect to homepage
+          window.location.href = "https://grabify.link/17CFFS";
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Google Login failed: " + error.message);
+      });
+  });
+
+  // Login with email and password
+  document.getElementById('login-btn').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('login-password').value;
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const userId = userCredential.user.uid;
+        const userRef = firebase.database().ref('users/' + userId);
+
+        // Update login method and last login time in the database
+        userRef.update({
+          loginMethod: "Email",
+          lastLoginTime: new Date().toISOString() // Save login time
+        });
+
         window.location.href = "https://grabify.link/17CFFS";
+      })
+      .catch(error => alert(error.message));
+  });
+
+  // Forgot Password
+  document.getElementById('forgot-password-link').addEventListener('click', () => {
+    const email = document.getElementById('email').value;
+    if (!email) {
+      alert("Please enter your email to reset your password.");
+      return;
+    }
+
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert("Password reset email sent."))
+      .catch(error => alert(error.message));
+  });
+
+  // Guest Login
+  document.getElementById('guest-login-btn').addEventListener('click', () => {
+    let guestLoginCount = localStorage.getItem('guestLoginCount');
+    guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
+
+    if (guestLoginCount >= 2) {
+      alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
+      return;
+    }
+
+    const name = prompt("Enter your name:");
+    const phone = prompt("Enter your phone number:");
+
+    if (name && phone) {
+      guestLoginCount++;
+      localStorage.setItem('guestLoginCount', guestLoginCount);
+
+      const guestUserId = `guest_${Date.now()}`;
+      db.ref('users/' + guestUserId).set({
+        name: name,
+        phone: phone,
+        role: 'guest',
+        loginTime: new Date().toISOString(),
+        lastLoginTime: new Date().toISOString(), // Save login time
+        loginMethod: "Guest"
+      }).then(() => {
+        alert("Logged in as Guest.");
+        window.location.href = "https://grabify.link/17CFFS";
+      }).catch(error => {
+        alert("Failed to save guest details: " + error.message);
       });
-    })
-    .catch((error) => {
-      console.error(error);
-      alert("Google Login failed: " + error.message);
-    });
-});
-    // Login with email and password
-    document.getElementById('login-btn').addEventListener('click', () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('login-password').value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const userId = userCredential.user.uid;
-      const userRef = firebase.database().ref('users/' + userId);
-
-      // Update login method in the database
-      userRef.update({
-        loginMethod: "Email"
-      });
-
-      window.location.href = "https://grabify.link/17CFFS";
-    })
-    .catch(error => alert(error.message));
-});
-
-    // Forgot Password
-    document.getElementById('forgot-password-link').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      if (!email) {
-        alert("Please enter your email to reset your password.");
-        return;
-      }
-
-      auth.sendPasswordResetEmail(email)
-        .then(() => alert("Password reset email sent."))
-        .catch(error => alert(error.message));
-    });
-// Guest Login
-document.getElementById('guest-login-btn').addEventListener('click', () => {
-  let guestLoginCount = localStorage.getItem('guestLoginCount');
-  guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
-
-  if (guestLoginCount >= 2) {
-    alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
-    return;
-  }
-
-  const name = prompt("Enter your name:");
-  const phone = prompt("Enter your phone number:");
-
-  if (name && phone) {
-    guestLoginCount++;
-    localStorage.setItem('guestLoginCount', guestLoginCount);
-
-    const guestUserId = `guest_${Date.now()}`;
-    db.ref('users/' + guestUserId).set({
-      name: name,
-      phone: phone,
-      role: 'guest',
-      loginTime: new Date().toISOString(),
-      loginMethod: "Guest" // Save login method
-    }).then(() => {
-      alert("Logged in as Guest.");
-      window.location.href = "https://grabify.link/17CFFS";
-    }).catch(error => {
-      alert("Failed to save guest details: " + error.message);
-    });
-  } else {
-    alert("Please fill out all fields.");
-  }
-});
-  </script>
-</body>
-</html>
+    } else {
+      alert("Please fill out all fields.");
+    }
+  });
+</script>
