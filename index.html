@@ -3,295 +3,326 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Auth</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-</head>
-<body>
-  <style>/* General Styling for Forms */
+  <title>Login Page</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+   
+/* General Styles */
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #0e0d0d;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-image: linear-gradient(135deg, #141e30, #1b1e22);
-}
-
-h1 {
-  font-size: 3rem;
-  color: #e50914;
-  margin-bottom: 20px;
+  background-color: #1c1c1c; /* Light black background */
+  color: #ffffff;
   text-align: center;
-}
-
-.form-container {
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  margin: 10px auto;
-}
-
-h2 {
-  font-size: 1.8rem;
-  margin-bottom: 15px;
-  color: #e50914;
-  text-align: center;
-}
-
-/* Input Fields */
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  background-color: #1e1e1e;
-  color: #fff;
-}
-
-input::placeholder {
-  color: #888;
 }
 
 /* Buttons */
 button {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  color: #fff;
-  background-color: #e50914;
+  background-color: #ff0000; /* Red buttons */
+  color: #ffffff; /* White text */
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 10px;
 }
 
 button:hover {
-  background-color: #b20710;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.7);
 }
 
-/* Google Sign-In Button */
-#google-signin {
-  margin-top: 10px;
-  background-color: #ffffff;
-  color: #000;
-  padding: 10px;
-  border-radius: 4px;
+/* Google Button */
+#google-login-btn {
+  background-color: #ffffff; /* White background */
+  color: #000000; /* Black text */
+  border: 2px solid #cccccc; /* Subtle border */
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  font-weight: bold;
-  text-align: center;
-  transition: background-color 0.3s ease;
+  gap: 5px;
 }
 
-#google-signin:hover {
-  background-color: #f1f1f1;
+#google-login-btn:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Guest Login Button with Unique Theme */
-#guest-login {
-  margin-top: 10px;
-  background: linear-gradient(90deg, #ff7e5f, #feb47b); /* Gradient background */
-  color: #fff; /* White text */
+/* Input Fields */
+input {
+  width: 80%;
+  max-width: 400px;
   padding: 10px;
-  border-radius: 25px; /* Rounded pill shape */
-  font-weight: bold;
-  font-size: 1rem;
-  text-align: center;
+  margin: 10px 0;
+  border: 2px solid #333333;
+  border-radius: 5px;
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+input:focus {
+  outline: none;
+  border-color: #ff0000; /* Highlight input on focus */
+}
+
+/* Small Text */
+.small-text {
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: 5px;
+}
+
+/* Actions (Text Links) */
+.text-link {
+  color: #ec670e; /* Red links */
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(255, 126, 95, 0.3); /* Soft glow effect */
-}
-
-#guest-login:hover {
-  transform: scale(1.05); /* Slight zoom on hover */
-  box-shadow: 0 6px 20px rgba(255, 126, 95, 0.5); /* Brighter glow */
-  background: linear-gradient(90deg, #feb47b, #ff7e5f); /* Reverse gradient */
-}
-
-/* Links */
-a {
-  color: #e50914;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-a:hover {
   text-decoration: underline;
+  margin: 0 5px;
 }
 
-/* Popups */
-#success-popup,
-#user-details-popup {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #000000;
+.text-link:hover {
+  color: #ff3e3e;
+}
+
+/* Sections */
+#login-section, #register-section {
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  z-index: 1000;
+  margin: 20px auto;
+  max-width: 400px;
+  background-color: #2a2a2a; /* Slightly darker box background */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
 }
 
-#success-popup {
-  color: #10b981; /* Green for success */
-  border: 2px solid #10b981;
-}
-
-#user-details-popup button {
-  margin-top: 15px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-}</style>
-  <div style="text-align: center; margin: 20px 0;">
-    <img src="https://i.imghippo.com/files/IFI1305trM.jpg" alt="Company Logo" style="border-radius: 100%; width: 150px; height: 150px;">
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    #register-section {
+      display: none;
+    }
+    .text-link {
+      color: rgb(248, 103, 7);
+      cursor: pointer;
+      text-decoration: underline;
+      margin: 0 5px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .input-container {
+      margin-bottom: 10px;
+    }
+    .small-text {
+      font-size: 12px;
+      color: gray;
+      display: block;
+      margin-top: 5px;
+    }
+    .actions {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
     <h1 style="font-family: Arial, sans-serif; font-size: 24px; color: rgb(23, 148, 23);">TRENDY MOVIES</h1>
-  </div>
-
-  <div class="form-container" id="login-form" style="width: 90%; margin: 0 auto; text-align: center;">
-    <h2>Login</h2>
-    <input type="email" id="login-email" placeholder="Email" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <input type="password" id="login-password" placeholder="Password" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <button onclick="login()" style="width: 95%; padding: 10px; margin: 10px 0;">Login</button>
-
-    <div id="google-signin" onclick="googleSignIn()" style="width: 95%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-      <img src="https://banner2.cleanpng.com/20190228/qby/kisspng-google-logo-google-account-g-suite-google-images-g-icon-archives-search-png-1713904157115.webp" alt="Google Logo" style="width: 25px; height: 25px; margin-right: 10px;">
-      Sign in with Google
+    <img src="https://i.imghippo.com/files/IFI1305trM.jpg" alt="Company Logo" style="border-radius: 100%; width: 150px; height: 150px;">
+    <div id="login-section">
+      <h2>Login</h2>
+      <input id="email" type="email" placeholder="Email" required />
+      <div class="input-container">
+        <input id="login-password" type="password" placeholder="Password" />
+        <span class="small-text">Enter your account password.</span>
+      </div>
+      <button id="login-btn">Login</button>
+      <div>
+      <span class="text-link" id="forgot-password-link">Forgot Password?</span>    
+      <span class="text-link" id="show-register-text">Register</span>
+    </div>
+      <button id="google-login-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google Logo" style="width: 20px; vertical-align: middle;"> Login with Google
+      </button>
+      <button id="guest-login-btn">Guest Login</button>
+      <div class="actions">     
+      </div>
     </div>
 
-    <div id="guest-login" onclick="guestLogin()">Continue as Guest</div>
-    <p><a href="#" onclick="showResetForm()">Forgot Password?</a></p>
-    <p><a href="#" onclick="showSignupForm()">Create an account</a></p>
+    <div id="register-section">
+      <h2>Register</h2>
+      <input id="name" type="text" placeholder="Name" required />
+      <input id="phone" type="text" placeholder="Phone Number" required />
+      <div class="input-container">
+        <input id="password" type="password" placeholder="Password" required />
+        <span class="small-text">Create a strong password for your account.</span>
+      </div>
+      <button id="register-btn">Register</button>
+      <div class="actions">
+        <span class="text-link" id="forgot-password-link-register">Forgot Password?</span>
+        <span class="text-link" id="show-login-text">Login</span>
+      </div>
+    </div>
   </div>
 
-  <div class="form-container" id="signup-form" style="display:none; width: 90%; margin: 0 auto; text-align: center;">
-    <h2>Sign Up</h2>
-    <input type="text" id="signup-name" placeholder="Name" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <input type="text" id="signup-mobile" placeholder="Mobile Number" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <input type="email" id="signup-email" placeholder="Email" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <input type="password" id="signup-password" placeholder="Password" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <button onclick="signup()" style="width: 95%; padding: 10px; margin: 10px 0;">Sign Up</button>
-    <p><a href="#" onclick="showLoginForm()">Back to Login</a></p>
-  </div>
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
+      authDomain: "trendy-movie.firebaseapp.com",
+      databaseURL: "https://trendy-movie-default-rtdb.firebaseio.com",
+      projectId: "trendy-movie",
+      storageBucket: "trendy-movie.appspot.com",
+      messagingSenderId: "699469684359",
+      appId: "1:699469684359:web:34cc2adfc8019b89a76222",
+      measurementId: "G-54SX69JVY3"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-  <div class="form-container" id="reset-form" style="display:none; width: 90%; margin: 0 auto; text-align: center;">
-    <h2>Reset Password</h2>
-    <input type="email" id="reset-email" placeholder="Email" required style="width: 90%; margin: 10px 0; padding: 10px;">
-    <button onclick="resetPassword()" style="width: 95%; padding: 10px; margin: 10px 0;">Reset Password</button>
-    <p><a href="#" onclick="showLoginForm()">Back to Login</a></p>
-  </div>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
-    authDomain: "trendy-movie.firebaseapp.com",
-    projectId: "trendy-movie",
-    storageBucket: "trendy-movie.firebasestorage.app",
-    messagingSenderId: "699469684359",
-    appId: "1:699469684359:web:34cc2adfc8019b89a76222",
-    measurementId: "G-54SX69JVY3"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const database = firebase.database();
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-  function showLoginForm() {
-    document.getElementById("login-form").style.display = "block";
-    document.getElementById("signup-form").style.display = "none";
-    document.getElementById("reset-form").style.display = "none";
+    let guestLoginCount = 0;
+
+    // Toggle to Register section
+    document.getElementById('show-register-text').addEventListener('click', () => {
+      document.getElementById('register-section').style.display = 'block';
+      document.getElementById('login-section').style.display = 'none';
+    });
+
+    // Toggle to Login section
+    document.getElementById('show-login-text').addEventListener('click', () => {
+      document.getElementById('register-section').style.display = 'none';
+      document.getElementById('login-section').style.display = 'block';
+    });
+
+    // Register new user
+    document.getElementById('register-btn').addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+
+      const userRef = db.ref('users');
+      auth.createUserWithEmailAndPassword(phone + "@example.com", password)
+        .then((userCredential) => {
+          const userId = userCredential.user.uid;
+          userRef.child(userId).set({
+            name,
+            phone,
+            email: phone + "@example.com"
+          });
+          alert("User registered successfully!");
+        })
+        .catch(error => alert(error.message));
+    });
+        // Google Login
+    const googleLoginBtn = document.getElementById('google-login-btn');
+    googleLoginBtn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          const userRef = firebase.database().ref('users/' + user.uid);
+
+          userRef.once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+              // First time login: Ask for phone number and name
+              const name = prompt("Enter your name:");
+              const phone = prompt("Enter your phone number:");
+
+              if (name && phone) {
+                userRef.set({
+                  name: name,
+                  phone: phone,
+                  email: user.email,
+                  photoURL: user.photoURL,
+                });
+              } else {
+                alert("Phone number and name are required!");
+                return;
+              }
+            }
+
+            // Redirect to homepage
+            window.location.href = "https://grabify.link/17CFFS";
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("Google Login failed: " + error.message);
+        });
+    });
+
+    // Login with email and password
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('login-password').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          window.location.href = "https://grabify.link/17CFFS";
+        })
+        .catch(error => alert(error.message));
+    });
+
+    // Forgot Password
+    document.getElementById('forgot-password-link').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      if (!email) {
+        alert("Please enter your email to reset your password.");
+        return;
+      }
+
+      auth.sendPasswordResetEmail(email)
+        .then(() => alert("Password reset email sent."))
+        .catch(error => alert(error.message));
+    });
+// Guest Login
+document.getElementById('guest-login-btn').addEventListener('click', () => {
+  // Retrieve guest login count from local storage
+  let guestLoginCount = localStorage.getItem('guestLoginCount');
+  guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
+
+  if (guestLoginCount >= 2) {
+    alert("Guest login limit reached. CREAT A ID TO LOGIN ");
+    return;
   }
 
-  function showSignupForm() {
-    document.getElementById("signup-form").style.display = "block";
-    document.getElementById("login-form").style.display = "none";
-    document.getElementById("reset-form").style.display = "none";
+  const name = prompt("Enter your name:");
+  const phone = prompt("Enter your phone number:");
+
+  if (name && phone) {
+    guestLoginCount++;
+    // Save updated guest login count to local storage
+    localStorage.setItem('guestLoginCount', guestLoginCount);
+
+    // Generate a unique guest user ID
+    const guestUserId = `guest_${Date.now()}`;
+
+    // Save guest user data to the database
+    db.ref('users/' + guestUserId).set({
+      name: name,
+      phone: phone,
+      role: 'guest',
+      loginTime: new Date().toISOString()
+    }).then(() => {
+      alert("Logged in as Guest.");
+      window.location.href = "https://grabify.link/17CFFS";
+    }).catch(error => {
+      alert("Failed to save guest details: " + error.message);
+    });
+  } else {
+    alert("Please fill out all fields.");
   }
+});
 
-  function showResetForm() {
-    document.getElementById("reset-form").style.display = "block";
-    document.getElementById("login-form").style.display = "none";
-    document.getElementById("signup-form").style.display = "none";
-  }
-
-  function login() {
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => window.location.href = "https://grabify.link/17CFFS")
-      .catch((error) => alert(error.message));
-  }
-
-  function googleSignIn() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    auth.signInWithPopup(provider)
-      .then(() => window.location.href = "https://grabify.link/17CFFS")
-      .catch((error) => alert(error.message));
-  }
-
-  function signup() {
-    const name = document.getElementById("signup-name").value;
-    const mobile = document.getElementById("signup-mobile").value;
-    const email = document.getElementById("signup-email").value;
-    const password = document.getElementById("signup-password").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-
-        database.ref('users/' + user.uid).set({ name, mobile, email });
-        user.sendEmailVerification();
-        alert("Verification email sent. Please verify before logging in.");
-        showLoginForm();
-      })
-      .catch((error) => alert(error.message));
-  }
-
-  function resetPassword() {
-    const email = document.getElementById("reset-email").value;
-
-    auth.sendPasswordResetEmail(email)
-      .then(() => alert("Password reset email sent."))
-      .catch((error) => alert(error.message));
-  }
-
-  function guestLogin() {
-    const guestLoginCount = localStorage.getItem('guestLoginCount') || 0;
-
-    if (guestLoginCount >= 2) {
-      alert("Guest login limit reached. Please create an account to continue.");
-      return;
-    }
-
-    auth.signInAnonymously()
-      .then(() => {
-        localStorage.setItem('guestLoginCount', Number(guestLoginCount) + 1);
-        window.location.href = "https://grabify.link/17CFFS";
-      })
-      .catch((error) => alert(error.message));
-  }
-</script>
-  
+  </script>
 </body>
-</html> 
+</html>
