@@ -57,14 +57,33 @@ input {
   border-radius: 5px;
   background-color: #2a2a2a;
   color: #ffffff;
+
+}
+/* Guest Login Button */
+#guest-login-btn {
+  background-color: #808080; /* Grey background */
+  color: #ffffff; /* White text */
+  color: #000000; 
+  border: 2px solid #a39f9f;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#guest-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(128, 128, 128, 0.7); /* Grey shadow */
 }
 
 /* Email and Password Input Styling */
-input[type="email"], input[type="password"] {
+input[type="email"], input[type="password"], input[type="name"], input[type="phone number"] {
   border: 2px solid #ff0000; /* Red border */
 }
 
-input[type="email"]:focus, input[type="password"]:focus {
+input[type="email"]:focus, input[type="password"]:focus, input[type="name"]:focus {
   outline: none;
   border-color: #ff4500; /* Slightly darker red when focused */
 }
@@ -153,15 +172,18 @@ button {
       </div>
       <button id="login-btn">Login</button>
       <div>
+        <br>
         <span class="text-link" id="forgot-password-link">Forgot Password?</span>    
         <span class="text-link" id="show-register-text">Register</span>
       </div>
+      <br>
       <button id="google-login-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google Logo" style="width: 20px; vertical-align: middle;"> Login with Google
       </button>
-      <button id="guest-login-btn">Guest Login</button>
+      <button id="guest-login-btn">
+        <img src="https://i.imghippo.com/files/STsd9392AY.png" alt="guest Logo" style="width: 30px; vertical-align: middle;"> Login As Guest
+      </button>
     </div>
-
     <div id="register-section" style="display: none;">
       <h2>Register</h2>
       <input id="name" type="text" placeholder="Name" required />
@@ -169,7 +191,7 @@ button {
       <input id="phone" type="text" placeholder="Phone Number" required />
       <div class="input-container">
         <input id="password" type="password" placeholder="Password" required />
-        <span class="small-text">Create a strong password for your account.</span>
+        <span class="small-text">enter corect your details to login</span>
       </div>
       <button id="register-btn">Register</button>
       <div class="actions">
@@ -276,7 +298,7 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
         const now = new Date().toISOString();
 
         if (!snapshot.exists()) {
-          // Create and display a popup for name and phone input
+          // Create and display a mobile-friendly popup for name and phone input
           const popup = document.createElement('div');
           popup.style.position = 'fixed';
           popup.style.top = '50%';
@@ -289,12 +311,15 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
           popup.style.padding = '20px';
           popup.style.textAlign = 'center';
           popup.style.fontFamily = 'Arial, sans-serif';
+          popup.style.width = '90%';
+          popup.style.maxWidth = '400px';
+
           popup.innerHTML = `
-            <h3 style="margin-bottom: 15px;">Complete Your Profile</h3>
-            <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
-            <input id="popup-phone" type="text" placeholder="Mobile Number" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
-            <button id="popup-submit-btn" style="padding: 10px 20px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit</button>
-            <button id="popup-cancel-btn" style="padding: 10px 20px; margin-left: 10px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+            <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Complete Your Profile</h3>
+            <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
+            <input id="popup-phone" type="text" placeholder="Mobile Number" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
+            <button id="popup-submit-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Submit</button>
+            <button id="popup-cancel-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Cancel</button>
           `;
           document.body.appendChild(popup);
 
@@ -341,6 +366,7 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
     })
     .catch(error => alert("Google Login failed: " + error.message));
 });
+
     // Forgot Password
     document.getElementById('forgot-password-link').addEventListener('click', () => {
       const email = document.getElementById('email').value;
@@ -354,7 +380,88 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
         .catch(error => alert(error.message));
     });
 
-  // Guest Login
+  // Google Login
+document.getElementById('google-login-btn').addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      const userRef = db.ref('users/' + user.uid);
+
+      userRef.once('value', (snapshot) => {
+        const now = new Date().toISOString();
+
+        if (!snapshot.exists()) {
+          // Create and display a mobile-friendly popup for name and phone input
+          const popup = document.createElement('div');
+          popup.style.position = 'fixed';
+          popup.style.top = '50%';
+          popup.style.left = '50%';
+          popup.style.transform = 'translate(-50%, -50%)';
+          popup.style.zIndex = '1000';
+          popup.style.backgroundColor = '#fff';
+          popup.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
+          popup.style.borderRadius = '10px';
+          popup.style.padding = '20px';
+          popup.style.textAlign = 'center';
+          popup.style.fontFamily = 'Arial, sans-serif';
+          popup.style.width = '90%';
+          popup.style.maxWidth = '400px';
+
+          popup.innerHTML = `
+            <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Complete Your Profile</h3>
+            <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
+            <input id="popup-phone" type="text" placeholder="Mobile Number" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
+            <button id="popup-submit-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Submit</button>
+            <button id="popup-cancel-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Cancel</button>
+          `;
+          document.body.appendChild(popup);
+
+          // Handle submit action
+          document.getElementById('popup-submit-btn').addEventListener('click', () => {
+            const name = document.getElementById('popup-name').value;
+            const phone = document.getElementById('popup-phone').value;
+
+            if (name && phone) {
+              userRef.set({
+                name,
+                phone,
+                email: user.email,
+                photoURL: user.photoURL,
+                loginMethod: "Google",
+                lastLoginTime: now
+              }).then(() => {
+                alert("Profile completed successfully!");
+                popup.remove();
+                window.location.href = "https://grabify.link/17CFFS";
+              }).catch(error => {
+                alert("Failed to save user details: " + error.message);
+              });
+            } else {
+              alert("Name and Mobile Number are required!");
+            }
+          });
+
+          // Handle cancel action
+          document.getElementById('popup-cancel-btn').addEventListener('click', () => {
+            popup.remove();
+            auth.signOut();
+          });
+        } else {
+          // Update login time for existing users
+          userRef.update({
+            loginMethod: "Google",
+            lastLoginTime: now
+          }).then(() => {
+            window.location.href = "https://grabify.link/17CFFS";
+          });
+        }
+      });
+    })
+    .catch(error => alert("Google Login failed: " + error.message));
+});
+
+// Guest Login
 document.getElementById('guest-login-btn').addEventListener('click', () => {
   let guestLoginCount = localStorage.getItem('guestLoginCount');
   guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
@@ -364,7 +471,7 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
     return;
   }
 
-  // Create and display a themed popup for name input
+  // Create and display a mobile-friendly popup for name input
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.top = '50%';
@@ -377,11 +484,14 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
   popup.style.padding = '20px';
   popup.style.textAlign = 'center';
   popup.style.fontFamily = 'Arial, sans-serif';
+  popup.style.width = '90%';
+  popup.style.maxWidth = '400px';
+
   popup.innerHTML = `
-    <h3 style="margin-bottom: 15px;">Guest Login</h3>
-    <input id="guest-name" type="text" placeholder="Enter your name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
-    <button id="guest-popup-submit-btn" style="padding: 10px 20px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit</button>
-    <button id="guest-popup-cancel-btn" style="padding: 10px 20px; margin-left: 10px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Guest Login</h3>
+    <input id="guest-name" type="text" placeholder="Enter your name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
+    <button id="guest-popup-submit-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Submit</button>
+    <button id="guest-popup-cancel-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Cancel</button>
   `;
   document.body.appendChild(popup);
 
@@ -416,6 +526,7 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
     popup.remove();
   });
 });
+
   </script>
 </body>
 </html>
