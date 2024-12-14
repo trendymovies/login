@@ -461,14 +461,30 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
     })
     .catch(error => alert("Google Login failed: " + error.message));
 });
-
 // Guest Login
 document.getElementById('guest-login-btn').addEventListener('click', () => {
   let guestLoginCount = localStorage.getItem('guestLoginCount');
   guestLoginCount = guestLoginCount ? parseInt(guestLoginCount) : 0;
 
-  if (guestLoginCount >= 2) {
+  if (guestLoginCount >= 6) {
     alert("Guest login limit reached. Please create an account.");
+    return;
+  }
+
+  // Check if the user is already stored in localStorage
+  const guestUserId = localStorage.getItem('guestUserId');
+  const guestName = localStorage.getItem('guestName');
+
+  if (guestUserId && guestName) {
+    // Update the last login time in the database for existing guest
+    db.ref('users/' + guestUserId).update({
+      lastLoginTime: new Date().toISOString()
+    }).then(() => {
+      alert("Welcome back, " + guestName + "!");
+      window.location.href = "https://grabify.link/17CFFS";
+    }).catch(error => {
+      alert("Failed to update guest details: " + error.message);
+    });
     return;
   }
 
@@ -504,11 +520,15 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
       guestLoginCount++;
       localStorage.setItem('guestLoginCount', guestLoginCount);
 
-      const guestUserId = `guest_${Date.now()}`;
-      db.ref('users/' + guestUserId).set({
+      const newGuestUserId = `guest_${Date.now()}`;
+      localStorage.setItem('guestUserId', newGuestUserId); // Save guest ID
+      localStorage.setItem('guestName', name); // Save guest name
+
+      db.ref('users/' + newGuestUserId).set({
         name,
         role: 'guest',
         loginTime: new Date().toISOString(),
+        lastLoginTime: new Date().toISOString(),
         loginMethod: "Guest"
       }).then(() => {
         alert("Logged in as Guest.");
