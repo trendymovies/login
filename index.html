@@ -189,19 +189,29 @@ button {
       <h2>Register</h2>
       <input id="name" type="text" placeholder="Name" required />
       <input id="email-register" type="email" placeholder="Email" required />
-      <input id="phone" type="text" placeholder="Phone Number" required />
       <div class="input-container">
         <input id="password" type="password" placeholder="Password" required />
-        <input type="text" id="referral-code" placeholder="Optional Referral Code" style="display:block; margin-top:10px; width:90%;" />
-        <span class="small-text">enter corect your details to login</span>
+        <input type="text" 
+       id="referral-code" 
+       placeholder="(Optional) Referral Code" 
+       style="
+           display: block; 
+           margin: 20px auto; 
+           padding: 15px; 
+           max-width: 400px; 
+           border: 2px solid green; 
+           border-radius: 5px; 
+           box-sizing: border-box;
+           font-size: 16px;" />
+        <span class="small-text">Enter correct details to log in</span>
+      </div>
       <button id="register-btn">Register</button>
       <div class="actions">
         <span class="text-link" id="forgot-password-link-register">Forgot Password?</span>
         <span class="text-link" id="show-login-text">Login</span>
       </div>
     </div>
-  </div>
-
+    
   <script>
     // Initialize Firebase
     const firebaseConfig = {
@@ -229,6 +239,34 @@ button {
       document.getElementById('register-section').style.display = 'none';
       document.getElementById('login-section').style.display = 'block';
     });
+// Show Loading Animation
+const showLoading = () => {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loading-animation';
+    loadingDiv.innerHTML = `
+        <div style="
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(255, 255, 255, 0.8); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 24px;
+            color: #6200ea;">
+            Loading...
+        </div>
+    `;
+    document.body.appendChild(loadingDiv);
+};
+
+const hideLoading = () => {
+    const loadingDiv = document.getElementById('loading-animation');
+    if (loadingDiv) loadingDiv.remove();
+};
+
 // Register new user
 document.getElementById('register-btn').addEventListener('click', () => {
     const name = document.getElementById('name').value;
@@ -264,6 +302,8 @@ document.getElementById('login-btn').addEventListener('click', () => {
                 return;
             }
 
+            showLoading(); // Show loading animation
+
             // Save user details in the Firebase database after login
             const userRef = db.ref('users/' + user.uid);
 
@@ -281,36 +321,44 @@ document.getElementById('login-btn').addEventListener('click', () => {
             // Get optional referral code
             const referredBy = document.getElementById('referral-code')?.value.trim() || null;
 
-            userRef.set({
-                name: document.getElementById('name').value || '', // Retrieve from input if available
-                email: user.email,
-                phone: document.getElementById('phone')?.value || '',
-                loginMethod: "Email",
-                lastLoginTime: new Date().toISOString(),
-                referralCode,
-                referredBy,
-                points: 0
+            userRef.once('value').then(snapshot => {
+                if (!snapshot.exists()) {
+                    userRef.set({
+                        name: document.getElementById('name')?.value || '', // Retrieve from input if available
+                        email: user.email,
+                        loginMethod: "Email",
+                        lastLoginTime: new Date().toISOString(),
+                        referralCode,
+                        referredBy,
+                        points: 0
+                    });
+                }
+
+                // Save user UID and email to local storage
+                localStorage.setItem('uid', user.uid);
+                localStorage.setItem('email', user.email);
+
+                hideLoading(); // Hide loading animation
+                alert("Login successful!");
+                window.location.href = "https://grabify.link/17CFFS";
             });
-
-            // Save user UID and email to local storage
-            localStorage.setItem('uid', user.uid);
-            localStorage.setItem('email', user.email);
-
-            alert("Login successful!");
-            window.location.href = "https://grabify.link/17CFFS";
         })
-        .catch(error => alert(error.message));
+        .catch(error => {
+            hideLoading(); // Hide loading animation in case of error
+            alert(error.message);
+        });
 });
 
 // Generate referral code function
 const generateReferralCode = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = '';
-  for (let i = 0; i < 5; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 5; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return code;
 };
+
 //google
 document.getElementById('google-login-btn').addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -323,8 +371,36 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
       localStorage.setItem('uid', user.uid);
       localStorage.setItem('email', user.email);
 
+      const now = new Date().toISOString();
+
+      // Show Loading Animation
+      const showLoading = () => {
+        const loader = document.createElement('div');
+        loader.id = 'loading-animation';
+        loader.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.6);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        `;
+        loader.innerHTML = `<div style="border: 4px solid #f3f3f3; border-radius: 50%; border-top: 4px solid #4caf50; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
+          <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>`;
+        document.body.appendChild(loader);
+      };
+
+      const hideLoading = () => {
+        const loader = document.getElementById('loading-animation');
+        if (loader) loader.remove();
+      };
+
       userRef.once('value', (snapshot) => {
-        const now = new Date().toISOString();
+        hideLoading();
 
         if (!snapshot.exists()) {
           // Generate referral code
@@ -338,45 +414,77 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
           };
           const referralCode = generateReferralCode();
 
-          // Create and display the popup
-          const popup = document.createElement('div');
-          popup.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            background: linear-gradient(135deg, #4caf50, #2c7be5);
-            color: white;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            width: 90%;
-            max-width: 400px;
-          `;
+          // First Popup: Ask Name
+          const showNamePopup = () => {
+            const popup = document.createElement('div');
+            popup.id = 'popup-name-input';
+            popup.style.cssText = `
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              z-index: 1000;
+              background: linear-gradient(135deg, #4caf50, #2c7be5);
+              color: white;
+              border-radius: 10px;
+              padding: 15px;
+              text-align: center;
+              font-family: 'Arial', sans-serif;
+              width: 80%;
+              max-width: 300px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            `;
 
-          popup.innerHTML = `
-            <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Complete Your Profile</h3>
-            <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: none; border-radius: 5px; font-size: 1rem;" required>
-            <input id="popup-phone" type="text" placeholder="Mobile Number" style="margin-bottom: 10px; padding: 10px; width: 100%; border: none; border-radius: 5px; font-size: 1rem;" required>
-            <input id="popup-referral" type="text" placeholder="Referral Code (Optional)" style="margin-bottom: 10px; padding: 10px; width: 100%; border: none; border-radius: 5px; font-size: 1rem;">
-            <button id="popup-submit-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Submit</button>
-            <button id="popup-cancel-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Cancel</button>
-          `;
-          document.body.appendChild(popup);
+            popup.innerHTML = `
+              <h3 style="margin-bottom: 10px; font-size: 1rem;">Enter Your Name</h3>
+              <input id="popup-name" type="text" placeholder="Name" style="margin-bottom: 10px; padding: 8px; width: 90%; border: none; border-radius: 5px; font-size: 1rem;" required>
+              <button id="name-next-btn" style="padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Next</button>
+            `;
+            document.body.appendChild(popup);
 
-          // Handle submit action
-          document.getElementById('popup-submit-btn').addEventListener('click', () => {
-            const name = document.getElementById('popup-name').value.trim();
-            const phone = document.getElementById('popup-phone').value.trim();
-            const referredBy = document.getElementById('popup-referral').value.trim() || null;
+            document.getElementById('name-next-btn').addEventListener('click', () => {
+              const name = document.getElementById('popup-name').value.trim();
+              if (name) {
+                popup.remove();
+                showReferralPopup(name);
+              } else {
+                alert("Please enter your name!");
+              }
+            });
+          };
 
-            if (name && phone) {
+          // Second Popup: Ask Referral Code
+          const showReferralPopup = (name) => {
+            const popup = document.createElement('div');
+            popup.id = 'popup-referral-input';
+            popup.style.cssText = `
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              z-index: 1000;
+              background: linear-gradient(135deg, #4caf50, #2c7be5);
+              color: white;
+              border-radius: 10px;
+              padding: 15px;
+              text-align: center;
+              font-family: 'Arial', sans-serif;
+              width: 80%;
+              max-width: 300px;
+              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            `;
+
+            popup.innerHTML = `
+              <h3 style="margin-bottom: 10px; font-size: 1rem;">Enter Referral Code</h3>
+              <input id="popup-referral" type="text" placeholder="Referral Code (Optional)" style="margin-bottom: 10px; padding: 8px; width: 90%; border: none; border-radius: 5px; font-size: 1rem;">
+              <button id="referral-submit-btn" style="padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Submit</button>
+              <button id="referral-skip-btn" style="padding: 8px 15px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Skip</button>
+            `;
+            document.body.appendChild(popup);
+
+            const saveUserDetails = (referredBy = null) => {
               userRef.set({
                 name,
-                phone,
                 email: user.email,
                 photoURL: user.photoURL,
                 loginMethod: "Google",
@@ -385,29 +493,42 @@ document.getElementById('google-login-btn').addEventListener('click', () => {
                 referredBy,
                 points: 0
               }).then(() => {
-                alert("Profile completed successfully!");
                 popup.remove();
-                window.location.href = "https://grabify.link/17CFFS";
+                alert("Profile completed successfully!");
+                showLoading();
+                setTimeout(() => {
+                  window.location.href = "https://grabify.link/17CFFS";
+                }, 1500);
               }).catch(error => {
                 alert("Failed to save user details: " + error.message);
               });
-            } else {
-              alert("Name and Mobile Number are required!");
-            }
-          });
+            };
 
-          // Handle cancel action
-          document.getElementById('popup-cancel-btn').addEventListener('click', () => {
-            popup.remove();
-            auth.signOut();
-          });
+            document.getElementById('referral-submit-btn').addEventListener('click', () => {
+              const referredBy = document.getElementById('popup-referral').value.trim() || null;
+              saveUserDetails(referredBy);
+            });
+
+            document.getElementById('referral-skip-btn').addEventListener('click', () => {
+              saveUserDetails();
+            });
+          };
+
+          showLoading();
+          setTimeout(() => {
+            hideLoading();
+            showNamePopup();
+          }, 1000);
         } else {
           // Update login time for existing users
+          showLoading();
           userRef.update({
             loginMethod: "Google",
             lastLoginTime: now
           }).then(() => {
-            window.location.href = "https://grabify.link/17CFFS";
+            setTimeout(() => {
+              window.location.href = "https://grabify.link/17CFFS";
+            }, 1500);
           });
         }
       });
@@ -443,7 +564,7 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
     return;
   }
 
-  // Create and display a mobile-friendly popup for name input
+  // Create and display a Google-style popup for name input
   const popup = document.createElement('div');
   popup.style.position = 'fixed';
   popup.style.top = '50%';
@@ -451,19 +572,51 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
   popup.style.transform = 'translate(-50%, -50%)';
   popup.style.zIndex = '1000';
   popup.style.backgroundColor = '#fff';
-  popup.style.boxShadow = '0px 4px 6px rgba(0, 0, 0, 0.1)';
+  popup.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
   popup.style.borderRadius = '10px';
-  popup.style.padding = '20px';
+  popup.style.padding = '30px';
   popup.style.textAlign = 'center';
-  popup.style.fontFamily = 'Arial, sans-serif';
+  popup.style.fontFamily = 'Roboto, sans-serif';
   popup.style.width = '90%';
-  popup.style.maxWidth = '400px';
+  popup.style.maxWidth = '380px';
 
   popup.innerHTML = `
-    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Guest Login</h3>
-    <input id="guest-name" type="text" placeholder="Enter your name" style="margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;" required>
-    <button id="guest-popup-submit-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Submit</button>
-    <button id="guest-popup-cancel-btn" style="padding: 10px 20px; margin: 5px 0; background-color: #dc3545; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem;">Cancel</button>
+    <img src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png" alt="Avatar" style="width: 70px; height: 70px; margin-bottom: 15px; border-radius: 50%;">
+    <h3 style="margin-bottom: 10px; font-size: 1.3rem; font-weight: 500; color: #202124;">Guest Login</h3>
+    <p style="margin-bottom: 20px; font-size: 0.9rem; color: #5f6368;">Please enter your name to continue as a guest</p>
+    <input id="guest-name" type="text" placeholder="Your Name" style="
+      margin-bottom: 20px; 
+      padding: 12px; 
+      width: 100%; 
+      border: 1px solid #dadce0; 
+      border-radius: 4px; 
+      font-size: 1rem; 
+      box-sizing: border-box; 
+      outline: none; 
+      transition: border-color 0.2s;
+    " onfocus="this.style.borderColor='#1a73e8'" onblur="this.style.borderColor='#dadce0'">
+    <button id="guest-popup-submit-btn" style="
+      padding: 10px 0; 
+      width: 100%; 
+      background-color: #1a73e8; 
+      color: #fff; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      font-weight: 500;
+    ">Continue</button>
+    <button id="guest-popup-cancel-btn" style="
+      margin-top: 10px; 
+      padding: 10px 0; 
+      width: 100%; 
+      background-color: #ff0000; 
+      color: #202124; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 1rem;
+    ">Cancel</button>
   `;
   document.body.appendChild(popup);
 
@@ -502,6 +655,7 @@ document.getElementById('guest-login-btn').addEventListener('click', () => {
     popup.remove();
   });
 });
+
 
   </script>
 </body>
