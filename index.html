@@ -206,9 +206,9 @@ button {
         <span class="small-text">Enter correct details to log in</span>
       </div>
       <button id="register-btn">Register</button>
-      <div class="actions">
-        <span class="text-link" id="forgot-password-link-register">Forgot Password?</span>
-        <span class="text-link" id="show-login-text">Login</span>
+      
+        
+        <button id="show-login-text">Back to Login</button>
       </div>
     </div>
     
@@ -358,7 +358,18 @@ const generateReferralCode = () => {
     }
     return code;
 };
+// Forgot Password
+document.getElementById('forgot-password-link').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      if (!email) {
+        alert("Please enter your email to reset your password.");
+        return;
+      }
 
+      auth.sendPasswordResetEmail(email)
+        .then(() => alert("Password reset email sent."))
+        .catch(error => alert(error.message));
+    });
 //google
 document.getElementById('google-login-btn').addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
